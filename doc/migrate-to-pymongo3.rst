@@ -366,6 +366,9 @@ can be replaced by this in any version of PyMongo:
 .. doctest::
 
   >>> from bson.son import SON
+    >>> client = MongoClient(document_class=dict)
+
+  or to change the
   >>> client = MongoClient(document_class=SON)
 
 or to change the `document_class` for a :class:`~pymongo.database.Database`
@@ -374,6 +377,8 @@ with PyMongo 2.9 or later:
 .. doctest::
 
   >>> from bson.codec_options import CodecOptions
+    >>> from bson.son import dict
+    >>> db = client.get_database("my_database", CodecOptions(SON))
   >>> from bson.son import SON
   >>> db = client.get_database("my_database", CodecOptions(SON))
 
@@ -504,6 +509,9 @@ can be replaced by this in PyMongo 2.9 or later:
 .. doctest::
 
   >>> from bson import encode
+    >>> from bson.codec_options import CodecOptions
+    >>> from bson.son import SON
+    >>> encoded = encode({"a": 1}, codec_options=CodecOptions(dict))
   >>> from bson.codec_options import CodecOptions
   >>> from bson.son import SON
   >>> encoded = encode({"a": 1}, codec_options=CodecOptions(SON))

@@ -14,8 +14,6 @@
 
 """Perform aggregation operations on a collection or database."""
 
-from bson.son import SON
-
 from pymongo import common
 from pymongo.collation import validate_collation_or_none
 from pymongo.errors import ConfigurationError
@@ -100,8 +98,8 @@ class _AggregationCommand(object):
 
     def get_cursor(self, session, server, sock_info, secondary_ok):
         # Serialize command.
-        cmd = SON([("aggregate", self._aggregation_target),
-                   ("pipeline", self._pipeline)])
+        cmd = dict([("aggregate", self._aggregation_target),
+                    ("pipeline", self._pipeline)])
         cmd.update(self._options)
 
         # Apply this target's read concern if:

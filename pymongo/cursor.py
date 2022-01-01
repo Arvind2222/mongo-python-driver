@@ -22,7 +22,6 @@ from collections import deque
 
 from bson import RE_TYPE, _convert_raw_document_lists_to_streams
 from bson.code import Code
-from bson.son import SON
 from pymongo import helpers
 from pymongo.common import validate_boolean, validate_is_mapping
 from pymongo.collation import validate_collation_or_none
@@ -395,12 +394,12 @@ class Cursor(object):
             # Allow-listed commands must be wrapped in $query.
             if "$query" not in spec:
                 # $query has to come first
-                spec = SON([("$query", spec)])
+                spec = dict([("$query", spec)])
 
-            if not isinstance(spec, SON):
+            if not isinstance(spec, dict):
                 # Ensure the spec is SON. As order is important this will
                 # ensure its set before merging in any extra operators.
-                spec = SON(spec)
+                spec = dict(spec)
 
             spec.update(operators)
             return spec
@@ -412,7 +411,7 @@ class Cursor(object):
         elif ("query" in self.__spec and
               (len(self.__spec) == 1 or
                next(iter(self.__spec)) == "query")):
-            return SON({"$query": self.__spec})
+            return dict({"$query": self.__spec})
 
         return self.__spec
 
@@ -724,7 +723,7 @@ class Cursor(object):
             raise TypeError("spec must be an instance of list or tuple")
 
         self.__check_okay_to_chain()
-        self.__max = SON(spec)
+        self.__max = dict(spec)
         return self
 
     def min(self, spec):
@@ -747,7 +746,7 @@ class Cursor(object):
             raise TypeError("spec must be an instance of list or tuple")
 
         self.__check_okay_to_chain()
-        self.__min = SON(spec)
+        self.__min = dict(spec)
         return self
 
     def sort(self, key_or_list, direction=None):
@@ -1202,7 +1201,7 @@ class Cursor(object):
         memo[val_id] = y
 
         for key, value in iterator:
-            if isinstance(value, (dict, list)) and not isinstance(value, SON):
+            if isinstance(value, (dict, list)) and not isinstance(value, dict):
                 value = self._deepcopy(value, memo)
             elif not isinstance(value, RE_TYPE):
                 value = copy.deepcopy(value, memo)

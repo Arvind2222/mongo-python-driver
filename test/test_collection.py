@@ -30,7 +30,6 @@ from bson.raw_bson import RawBSONDocument
 from bson.regex import Regex
 from bson.codec_options import CodecOptions
 from bson.objectid import ObjectId
-from bson.son import SON
 from pymongo import ASCENDING, DESCENDING, GEO2D, GEOSPHERE, HASHED, TEXT
 from pymongo.bulk import BulkWriteError
 from pymongo.collection import Collection, ReturnDocument
@@ -358,7 +357,7 @@ class TestCollection(IntegrationTest):
         indexes = list(db.test.list_indexes())
         self.assertEqual(len(indexes), 2)
         self.assertEqual(map_indexes(indexes)["hello_1"]["key"],
-                         SON([("hello", ASCENDING)]))
+                         dict([("hello", ASCENDING)]))
 
         db.test.create_index([("hello", DESCENDING), ("world", ASCENDING)],
                              unique=True)
@@ -366,7 +365,7 @@ class TestCollection(IntegrationTest):
         self.assertEqual(len(indexes), 3)
         index_map = map_indexes(indexes)
         self.assertEqual(index_map["hello_-1_world_1"]["key"],
-                         SON([("hello", DESCENDING), ("world", ASCENDING)]))
+                         dict([("hello", DESCENDING), ("world", ASCENDING)]))
         self.assertEqual(True, index_map["hello_-1_world_1"]["unique"])
 
         # List indexes on a collection that does not exist.
@@ -428,7 +427,7 @@ class TestCollection(IntegrationTest):
             bucketSize=1
         )
 
-        results = db.command(SON([
+        results = db.command(dict([
             ("geoSearch", "test"),
             ("near", [33, 33]),
             ("maxDistance", 6),
@@ -978,8 +977,8 @@ class TestCollection(IntegrationTest):
         db = self.db
         db.test.drop()
         db.test.insert_one({"z": 5})
-        db.command(SON([("collMod", "test"),
-                        ("validator", {"z": {"$gte": 0}})]))
+        db.command(dict([("collMod", "test"),
+                         ("validator", {"z": {"$gte": 0}})]))
         db_w0 = self.db.client.get_database(
             self.db.name, write_concern=WriteConcern(w=0))
 
@@ -1461,7 +1460,7 @@ class TestCollection(IntegrationTest):
 
         # I know this seems like testing the server but I'd like to be notified
         # by CI if the server's behavior changes here.
-        doc = SON([("$set", {"foo.bar": "bim"}), ("hello", "world")])
+        doc = dict([("$set", {"foo.bar": "bim"}), ("hello", "world")])
         self.assertRaises(OperationFailure, self.db.test.update_one,
                           {"hello": "world"}, doc, upsert=True)
 
@@ -1469,7 +1468,7 @@ class TestCollection(IntegrationTest):
         # That's OK assuming the server's behavior in the previous assert
         # doesn't change. If the behavior changes checking the first key for
         # '$' in update won't be good enough anymore.
-        doc = SON([("hello", "world"), ("$set", {"foo.bar": "bim"})])
+        doc = dict([("hello", "world"), ("$set", {"foo.bar": "bim"})])
         self.assertRaises(OperationFailure, self.db.test.replace_one,
                           {"hello": "world"}, doc, upsert=True)
 
@@ -2170,9 +2169,9 @@ class TestCollection(IntegrationTest):
                                 None, None)
         self.assertEqual(
             cmd.to_dict(),
-            SON([('find', 'coll'),
-                 ('$dumb', 2),
-                 ('filter', {'foo': 1})]).to_dict())
+            dict([('find', 'coll'),
+                  ('$dumb', 2),
+                  ('filter', {'foo': 1})]).to_dict())
 
     def test_bool(self):
         with self.assertRaises(NotImplementedError):

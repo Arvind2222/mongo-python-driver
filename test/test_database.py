@@ -25,7 +25,6 @@ from bson.int64 import Int64
 from bson.regex import Regex
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
-from bson.son import SON
 from pymongo import (auth,
                      helpers)
 from pymongo.collection import Collection
@@ -406,11 +405,11 @@ class TestDatabase(IntegrationTest):
         # with hash randomization enabled (e.g. tox).
         db = self.client.pymongo_test
         db.test.drop()
-        db.test.insert_one(SON([("hello", "world"),
-                                ("_id", 5)]))
+        db.test.insert_one(dict([("hello", "world"),
+                                 ("_id", 5)]))
 
         db = self.client.get_database(
-            "pymongo_test", codec_options=CodecOptions(document_class=SON))
+            "pymongo_test", codec_options=CodecOptions(document_class=dict))
         cursor = db.test.find()
         for x in cursor:
             for (k, v) in x.items():
@@ -445,8 +444,8 @@ class TestDatabase(IntegrationTest):
 
         db.test.insert_one({"_id": 4, "foo": "bar"})
         db = self.client.get_database(
-            "pymongo_test", codec_options=CodecOptions(document_class=SON))
-        self.assertEqual(SON([("foo", "bar")]),
+            "pymongo_test", codec_options=CodecOptions(document_class=dict))
+        self.assertEqual(dict([("foo", "bar")]),
                          db.dereference(DBRef("test", 4),
                                         projection={"_id": False}))
 
@@ -455,7 +454,7 @@ class TestDatabase(IntegrationTest):
         db = self.client.pymongo_test
         db.test.drop()
 
-        a_doc = SON({"hello": "world"})
+        a_doc = dict({"hello": "world"})
         a_key = db.test.insert_one(a_doc).inserted_id
         self.assertTrue(isinstance(a_doc["_id"], ObjectId))
         self.assertEqual(a_doc["_id"], a_key)

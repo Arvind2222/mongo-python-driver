@@ -18,7 +18,6 @@ import sys
 
 sys.path[0:0] = [""]
 
-from bson import SON
 from pymongo import monitoring
 from pymongo.errors import NotPrimaryError
 from pymongo.write_concern import WriteConcern
@@ -64,7 +63,7 @@ class TestConnectionsSurvivePrimaryStepDown(IntegrationTest):
         self.listener.reset()
 
     def set_fail_point(self, command_args):
-        cmd = SON([("configureFailPoint", "failCommand")])
+        cmd = dict([("configureFailPoint", "failCommand")])
         cmd.update(command_args)
         self.client.admin.command(cmd)
 

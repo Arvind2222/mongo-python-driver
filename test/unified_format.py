@@ -28,7 +28,7 @@ import types
 
 from collections import abc
 
-from bson import json_util, Code, Decimal128, DBRef, SON, Int64, MaxKey, MinKey
+from bson import json_util, Code, Decimal128, DBRef, dict, Int64, MaxKey, MinKey
 from bson.binary import Binary
 from bson.objectid import ObjectId
 from bson.regex import Regex, RE_TYPE
@@ -842,7 +842,7 @@ class UnifiedSpecTestMixinV1(IntegrationTest):
     def _databaseOperation_runCommand(self, target, **kwargs):
         self.__raise_if_unsupported('runCommand', target, Database)
         # Ensure the first key is the command name.
-        ordered_command = SON([(kwargs.pop('command_name'), 1)])
+        ordered_command = dict([(kwargs.pop('command_name'), 1)])
         ordered_command.update(kwargs['command'])
         kwargs['command'] = ordered_command
         return target.command(**kwargs)
@@ -982,7 +982,7 @@ class UnifiedSpecTestMixinV1(IntegrationTest):
         if not client_context.test_commands_enabled:
             self.skipTest('Test commands must be enabled')
 
-        cmd_on = SON([('configureFailPoint', 'failCommand')])
+        cmd_on = dict([('configureFailPoint', 'failCommand')])
         cmd_on.update(command_args)
         client.admin.command(cmd_on)
         self.addCleanup(

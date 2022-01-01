@@ -16,7 +16,6 @@
 
 from copy import deepcopy
 
-from bson.son import SON
 from bson._helpers import _getstate_slots, _setstate_slots
 
 class DBRef(object):
@@ -88,8 +87,8 @@ class DBRef(object):
 
         Generally not needed by application developers
         """
-        doc = SON([("$ref", self.collection),
-                   ("$id", self.id)])
+        doc = dict([("$ref", self.collection),
+                    ("$id", self.id)])
         if self.database is not None:
             doc["$db"] = self.database
         doc.update(self.__kwargs)

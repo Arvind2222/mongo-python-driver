@@ -94,7 +94,7 @@ import re
 import uuid
 
 import bson
-from bson import EPOCH_AWARE, RE_TYPE, SON
+from bson import EPOCH_AWARE, RE_TYPE
 from bson.binary import (Binary, UuidRepresentation, ALL_UUID_SUBTYPES,
                          UUID_SUBTYPE)
 from bson.code import Code
@@ -445,8 +445,8 @@ def _json_convert(obj, json_options=DEFAULT_JSON_OPTIONS):
     converted into json.
     """
     if hasattr(obj, 'items'):
-        return SON(((k, _json_convert(v, json_options))
-                    for k, v in obj.items()))
+        return dict(((k, _json_convert(v, json_options))
+                     for k, v in obj.items()))
     elif hasattr(obj, '__iter__') and not isinstance(obj, (str, bytes)):
         return list((_json_convert(v, json_options) for v in obj))
     try:
@@ -760,10 +760,10 @@ def _parse_canonical_maxkey(doc):
 
 def _encode_binary(data, subtype, json_options):
     if json_options.json_mode == JSONMode.LEGACY:
-        return SON([
+        return dict([
             ('$binary', base64.b64encode(data).decode()),
             ('$type', "%02x" % subtype)])
-    return {'$binary': SON([
+    return {'$binary': dict([
         ('base64', base64.b64encode(data).decode()),
         ('subType', "%02x" % subtype)])}
 
@@ -817,19 +817,19 @@ def default(obj, json_options=DEFAULT_JSON_OPTIONS):
         else:
             pattern = obj.pattern.decode('utf-8')
         if json_options.json_mode == JSONMode.LEGACY:
-            return SON([("$regex", pattern), ("$options", flags)])
-        return {'$regularExpression': SON([("pattern", pattern),
-                                           ("options", flags)])}
+            return dict([("$regex", pattern), ("$options", flags)])
+        return {'$regularExpression': dict([("pattern", pattern),
+                                            ("options", flags)])}
     if isinstance(obj, MinKey):
         return {"$minKey": 1}
     if isinstance(obj, MaxKey):
         return {"$maxKey": 1}
     if isinstance(obj, Timestamp):
-        return {"$timestamp": SON([("t", obj.time), ("i", obj.inc)])}
+        return {"$timestamp": dict([("t", obj.time), ("i", obj.inc)])}
     if isinstance(obj, Code):
         if obj.scope is None:
             return {'$code': str(obj)}
-        return SON([
+        return dict([
             ('$code', str(obj)),
             ('$scope', _json_convert(obj.scope, json_options))])
     if isinstance(obj, Binary):

@@ -23,7 +23,6 @@ from bson.code import Code
 from bson.objectid import ObjectId
 from bson.raw_bson import RawBSONDocument
 from bson.codec_options import CodecOptions
-from bson.son import SON
 from pymongo import (common,
                      helpers,
                      message)
@@ -238,7 +237,7 @@ class Collection(common.BaseObject):
     def __create(self, options, collation, session):
         """Sends a create command with the given options.
         """
-        cmd = SON([("create", self.__name)])
+        cmd = dict([("create", self.__name)])
         if options:
             if "size" in options:
                 options["size"] = float(options["size"])
@@ -442,9 +441,9 @@ class Collection(common.BaseObject):
         """Internal helper for inserting a single document."""
         write_concern = write_concern or self.write_concern
         acknowledged = write_concern.acknowledged
-        command = SON([('insert', self.name),
-                       ('ordered', ordered),
-                       ('documents', [doc])])
+        command = dict([('insert', self.name),
+                        ('ordered', ordered),
+                        ('documents', [doc])])
         if not write_concern.is_server_default:
             command['writeConcern'] = write_concern.document
 
@@ -592,10 +591,10 @@ class Collection(common.BaseObject):
         collation = validate_collation_or_none(collation)
         write_concern = write_concern or self.write_concern
         acknowledged = write_concern.acknowledged
-        update_doc = SON([('q', criteria),
-                          ('u', document),
-                          ('multi', multi),
-                          ('upsert', upsert)])
+        update_doc = dict([('q', criteria),
+                           ('u', document),
+                           ('multi', multi),
+                           ('upsert', upsert)])
         if collation is not None:
             if not acknowledged:
                 raise ConfigurationError(
@@ -616,9 +615,9 @@ class Collection(common.BaseObject):
                 hint = helpers._index_document(hint)
             update_doc['hint'] = hint
 
-        command = SON([('update', self.name),
-                       ('ordered', ordered),
-                       ('updates', [update_doc])])
+        command = dict([('update', self.name),
+                        ('ordered', ordered),
+                        ('updates', [update_doc])])
         if not write_concern.is_server_default:
             command['writeConcern'] = write_concern.document
 
@@ -936,8 +935,8 @@ class Collection(common.BaseObject):
         common.validate_is_mapping("filter", criteria)
         write_concern = write_concern or self.write_concern
         acknowledged = write_concern.acknowledged
-        delete_doc = SON([('q', criteria),
-                          ('limit', int(not multi))])
+        delete_doc = dict([('q', criteria),
+                           ('limit', int(not multi))])
         collation = validate_collation_or_none(collation)
         if collation is not None:
             if not acknowledged:
@@ -952,9 +951,9 @@ class Collection(common.BaseObject):
             if not isinstance(hint, str):
                 hint = helpers._index_document(hint)
             delete_doc['hint'] = hint
-        command = SON([('delete', self.name),
-                       ('ordered', ordered),
-                       ('deletes', [delete_doc])])
+        command = dict([('delete', self.name),
+                        ('ordered', ordered),
+                        ('deletes', [delete_doc])])
         if not write_concern.is_server_default:
             command['writeConcern'] = write_concern.document
 
@@ -1395,9 +1394,9 @@ class Collection(common.BaseObject):
                     {'$collStats': {'count': {}}},
                     {'$group': {'_id': 1, 'n': {'$sum': '$count'}}},
                 ]
-                cmd = SON([('aggregate', self.__name),
-                           ('pipeline', pipeline),
-                           ('cursor', {})])
+                cmd = dict([('aggregate', self.__name),
+                            ('pipeline', pipeline),
+                            ('cursor', {})])
                 cmd.update(kwargs)
                 result = self._aggregate_one_result(
                     sock_info, secondary_ok, cmd, collation=None, session=session)
@@ -1406,7 +1405,7 @@ class Collection(common.BaseObject):
                 return int(result['n'])
             else:
                 # MongoDB < 4.9
-                cmd = SON([('count', self.__name)])
+                cmd = dict([('count', self.__name)])
                 cmd.update(kwargs)
                 return self._count_cmd(None, sock_info, secondary_ok, cmd, None)
 
@@ -1477,9 +1476,9 @@ class Collection(common.BaseObject):
         if 'limit' in kwargs:
             pipeline.append({'$limit': kwargs.pop('limit')})
         pipeline.append({'$group': {'_id': 1, 'n': {'$sum': 1}}})
-        cmd = SON([('aggregate', self.__name),
-                   ('pipeline', pipeline),
-                   ('cursor', {})])
+        cmd = dict([('aggregate', self.__name),
+                    ('pipeline', pipeline),
+                    ('cursor', {})])
         if "hint" in kwargs and not isinstance(kwargs["hint"], str):
             kwargs["hint"] = helpers._index_document(kwargs["hint"])
         collation = validate_collation_or_none(kwargs.pop('collation', None))
@@ -1560,8 +1559,8 @@ class Collection(common.BaseObject):
                     names.append(document["name"])
                     yield document
 
-            cmd = SON([('createIndexes', self.name),
-                       ('indexes', list(gen_indexes()))])
+            cmd = dict([('createIndexes', self.name),
+                        ('indexes', list(gen_indexes()))])
             cmd.update(kwargs)
             if 'commitQuorum' in kwargs and not supports_quorum:
                 raise ConfigurationError(
@@ -1750,7 +1749,7 @@ class Collection(common.BaseObject):
         if not isinstance(name, str):
             raise TypeError("index_or_name must be an instance of str or list")
 
-        cmd = SON([("dropIndexes", self.__name), ("index", name)])
+        cmd = dict([("dropIndexes", self.__name), ("index", name)])
         cmd.update(kwargs)
         with self._socket_for_writes(session) as sock_info:
             self._command(sock_info,
@@ -1780,14 +1779,14 @@ class Collection(common.BaseObject):
 
         .. versionadded:: 3.0
         """
-        codec_options = CodecOptions(SON)
+        codec_options = CodecOptions(dict)
         coll = self.with_options(codec_options=codec_options,
                                  read_preference=ReadPreference.PRIMARY)
         read_pref = ((session and session._txn_read_preference())
                      or ReadPreference.PRIMARY)
 
         def _cmd(session, server, sock_info, secondary_ok):
-            cmd = SON([("listIndexes", self.__name), ("cursor", {})])
+            cmd = dict([("listIndexes", self.__name), ("cursor", {})])
             with self.__database.client._tmp_session(session, False) as s:
                 try:
                     cursor = self._command(sock_info, cmd, secondary_ok,
@@ -2149,7 +2148,7 @@ class Collection(common.BaseObject):
             raise InvalidName("collection names must not contain '$'")
 
         new_name = "%s.%s" % (self.__database.name, new_name)
-        cmd = SON([("renameCollection", self.__full_name), ("to", new_name)])
+        cmd = dict([("renameCollection", self.__full_name), ("to", new_name)])
         cmd.update(kwargs)
         write_concern = self._write_concern_for_cmd(cmd, session)
 
@@ -2198,8 +2197,8 @@ class Collection(common.BaseObject):
         """
         if not isinstance(key, str):
             raise TypeError("key must be an instance of str")
-        cmd = SON([("distinct", self.__name),
-                   ("key", key)])
+        cmd = dict([("distinct", self.__name),
+                    ("key", key)])
         if filter is not None:
             if "query" in kwargs:
                 raise ConfigurationError("can't pass both filter and query")
@@ -2233,9 +2232,9 @@ class Collection(common.BaseObject):
             raise ValueError("return_document must be "
                              "ReturnDocument.BEFORE or ReturnDocument.AFTER")
         collation = validate_collation_or_none(kwargs.pop('collation', None))
-        cmd = SON([("findAndModify", self.__name),
-                   ("query", filter),
-                   ("new", return_document)])
+        cmd = dict([("findAndModify", self.__name),
+                    ("query", filter),
+                    ("new", return_document)])
         cmd.update(kwargs)
         if projection is not None:
             cmd["fields"] = helpers._fields_list_to_dict(projection,

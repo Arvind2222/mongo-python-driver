@@ -22,7 +22,6 @@ from itertools import islice
 
 from bson.objectid import ObjectId
 from bson.raw_bson import RawBSONDocument
-from bson.son import SON
 from pymongo.client_session import _validate_session_write_concern
 from pymongo.common import (validate_is_mapping,
                             validate_is_document_type,
@@ -178,8 +177,8 @@ class _Bulk(object):
         """Create an update document and add it to the list of ops.
         """
         validate_ok_for_update(update)
-        cmd = SON([('q', selector), ('u', update),
-                   ('multi', multi), ('upsert', upsert)])
+        cmd = dict([('q', selector), ('u', update),
+                    ('multi', multi), ('upsert', upsert)])
         collation = validate_collation_or_none(collation)
         if collation is not None:
             self.uses_collation = True
@@ -200,8 +199,8 @@ class _Bulk(object):
         """Create a replace document and add it to the list of ops.
         """
         validate_ok_for_replace(replacement)
-        cmd = SON([('q', selector), ('u', replacement),
-                   ('multi', False), ('upsert', upsert)])
+        cmd = dict([('q', selector), ('u', replacement),
+                    ('multi', False), ('upsert', upsert)])
         collation = validate_collation_or_none(collation)
         if collation is not None:
             self.uses_collation = True
@@ -214,7 +213,7 @@ class _Bulk(object):
     def add_delete(self, selector, limit, collation=None, hint=None):
         """Create a delete document and add it to the list of ops.
         """
-        cmd = SON([('q', selector), ('limit', limit)])
+        cmd = dict([('q', selector), ('limit', limit)])
         collation = validate_collation_or_none(collation)
         if collation is not None:
             self.uses_collation = True
@@ -273,8 +272,8 @@ class _Bulk(object):
                 run.op_type, self.collection.codec_options)
 
             while run.idx_offset < len(run.ops):
-                cmd = SON([(cmd_name, self.collection.name),
-                           ('ordered', self.ordered)])
+                cmd = dict([(cmd_name, self.collection.name),
+                            ('ordered', self.ordered)])
                 if not write_concern.is_server_default:
                     cmd['writeConcern'] = write_concern.document
                 if self.bypass_doc_val:
@@ -367,9 +366,9 @@ class _Bulk(object):
                 run.op_type, self.collection.codec_options)
 
             while run.idx_offset < len(run.ops):
-                cmd = SON([(cmd_name, self.collection.name),
-                           ('ordered', False),
-                           ('writeConcern', {'w': 0})])
+                cmd = dict([(cmd_name, self.collection.name),
+                            ('ordered', False),
+                            ('writeConcern', {'w': 0})])
                 sock_info.add_server_api(cmd)
                 ops = islice(run.ops, run.idx_offset, None)
                 # Run as many ops as possible.

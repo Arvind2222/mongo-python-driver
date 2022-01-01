@@ -38,7 +38,6 @@ import weakref
 from collections import defaultdict
 
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
-from bson.son import SON
 from pymongo import (common,
                      database,
                      helpers,
@@ -1034,7 +1033,7 @@ class MongoClient(common.BaseObject):
                     return
 
                 for i in range(0, len(session_ids), common._MAX_END_SESSIONS):
-                    spec = SON([('endSessions',
+                    spec = dict([('endSessions',
                                  session_ids[i:i + common._MAX_END_SESSIONS])])
                     sock_info.command(
                         'admin', spec, secondary_ok=secondary_ok, client=self)
@@ -1481,7 +1480,7 @@ class MongoClient(common.BaseObject):
     def _kill_cursor_impl(self, cursor_ids, address, session, sock_info):
         namespace = address.namespace
         db, coll = namespace.split('.', 1)
-        spec = SON([('killCursors', coll), ('cursors', cursor_ids)])
+        spec = dict([('killCursors', coll), ('cursors', cursor_ids)])
         sock_info.command(db, spec, session=session, client=self)
 
     def _process_kill_cursors(self):
@@ -1673,7 +1672,7 @@ class MongoClient(common.BaseObject):
 
         .. versionadded:: 3.6
         """
-        cmd = SON([("listDatabases", 1)])
+        cmd = dict([("listDatabases", 1)])
         cmd.update(kwargs)
         admin = self._database_default_options("admin")
         res = admin._retryable_read_command(cmd, session=session)

@@ -27,7 +27,7 @@ from itertools import product
 
 sys.path[0:0] = ['']
 
-from bson import ObjectId, SON, Timestamp, encode, json_util
+from bson import ObjectId, dict, Timestamp, encode, json_util
 from bson.binary import (ALL_UUID_REPRESENTATIONS,
                          Binary,
                          STANDARD,
@@ -1014,8 +1014,8 @@ class TestCollectionChangeStream(TestChangeStreamBase, APITestsMixin,
         """Test with document _ids that need their order preserved."""
         random_keys = random.sample(string.ascii_letters,
                                     len(string.ascii_letters))
-        random_doc = {'_id': SON([(key, key) for key in random_keys])}
-        for document_class in (dict, SON, RawBSONDocument):
+        random_doc = {'_id': dict([(key, key) for key in random_keys])}
+        for document_class in (dict, dict, RawBSONDocument):
             options = self.watched_collection().codec_options.with_options(
                 document_class=document_class)
             coll = self.watched_collection(codec_options=options)
@@ -1078,7 +1078,7 @@ class TestAllLegacyScenarios(IntegrationTest):
         elif not client_context.test_commands_enabled:
             self.skipTest("Test commands must be enabled")
 
-        fail_cmd = SON([('configureFailPoint', 'failCommand')])
+        fail_cmd = dict([('configureFailPoint', 'failCommand')])
         fail_cmd.update(fail_point)
         client_context.client.admin.command(fail_cmd)
         self.addCleanup(

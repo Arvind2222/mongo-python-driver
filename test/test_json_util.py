@@ -22,7 +22,7 @@ import uuid
 
 sys.path[0:0] = [""]
 
-from bson import json_util, EPOCH_AWARE, EPOCH_NAIVE, SON
+from bson import json_util, EPOCH_AWARE, EPOCH_NAIVE, dict
 from bson.json_util import (DatetimeRepresentation,
                             JSONMode,
                             JSONOptions,
@@ -84,10 +84,10 @@ class TestJsonUtil(unittest.TestCase):
         self.assertEqual(
             opts2.uuid_representation, UuidRepresentation.JAVA_LEGACY)
         self.assertEqual(opts2.document_class, dict)
-        opts3 = opts2.with_options(document_class=SON)
+        opts3 = opts2.with_options(document_class=dict)
         self.assertEqual(
             opts3.uuid_representation, UuidRepresentation.JAVA_LEGACY)
-        self.assertEqual(opts3.document_class, SON)
+        self.assertEqual(opts3.document_class, dict)
 
     def test_objectid(self):
         self.round_trip({"id": ObjectId()})
@@ -447,9 +447,9 @@ class TestJsonUtil(unittest.TestCase):
         self.assertEqual({"foo": "bar"}, json_util.loads(
             '{"foo": "bar"}',
             json_options=JSONOptions(document_class=dict)))
-        self.assertEqual(SON([("foo", "bar"), ("b", 1)]), json_util.loads(
+        self.assertEqual(dict([("foo", "bar"), ("b", 1)]), json_util.loads(
             '{"foo": "bar", "b": 1}',
-            json_options=JSONOptions(document_class=SON)))
+            json_options=JSONOptions(document_class=dict)))
 
 
 class TestJsonUtilRoundtrip(IntegrationTest):

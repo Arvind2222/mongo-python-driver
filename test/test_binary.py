@@ -30,7 +30,6 @@ import bson
 from bson import decode, encode
 from bson.binary import *
 from bson.codec_options import CodecOptions
-from bson.son import SON
 
 from pymongo.common import validate_uuid_representation
 from pymongo.mongo_client import MongoClient
@@ -161,19 +160,19 @@ class TestBinary(unittest.TestCase):
     def test_legacy_java_uuid(self):
         # Test decoding
         data = self.java_data
-        docs = bson.decode_all(data, CodecOptions(SON, False, PYTHON_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, PYTHON_LEGACY))
         for d in docs:
             self.assertNotEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
-        docs = bson.decode_all(data, CodecOptions(SON, False, STANDARD))
+        docs = bson.decode_all(data, CodecOptions(dict, False, STANDARD))
         for d in docs:
             self.assertNotEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
-        docs = bson.decode_all(data, CodecOptions(SON, False, CSHARP_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, CSHARP_LEGACY))
         for d in docs:
             self.assertNotEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
-        docs = bson.decode_all(data, CodecOptions(SON, False, JAVA_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, JAVA_LEGACY))
         for d in docs:
             self.assertEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
@@ -201,7 +200,7 @@ class TestBinary(unittest.TestCase):
     @client_context.require_connection
     def test_legacy_java_uuid_roundtrip(self):
         data = self.java_data
-        docs = bson.decode_all(data, CodecOptions(SON, False, JAVA_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, JAVA_LEGACY))
 
         client_context.client.pymongo_test.drop_collection('java_uuid')
         db = client_context.client.pymongo_test
@@ -223,19 +222,19 @@ class TestBinary(unittest.TestCase):
         data = self.csharp_data
 
         # Test decoding
-        docs = bson.decode_all(data, CodecOptions(SON, False, PYTHON_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, PYTHON_LEGACY))
         for d in docs:
             self.assertNotEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
-        docs = bson.decode_all(data, CodecOptions(SON, False, STANDARD))
+        docs = bson.decode_all(data, CodecOptions(dict, False, STANDARD))
         for d in docs:
             self.assertNotEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
-        docs = bson.decode_all(data, CodecOptions(SON, False, JAVA_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, JAVA_LEGACY))
         for d in docs:
             self.assertNotEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
-        docs = bson.decode_all(data, CodecOptions(SON, False, CSHARP_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, CSHARP_LEGACY))
         for d in docs:
             self.assertEqual(d['newguid'], uuid.UUID(d['newguidstring']))
 
@@ -263,7 +262,7 @@ class TestBinary(unittest.TestCase):
     @client_context.require_connection
     def test_legacy_csharp_uuid_roundtrip(self):
         data = self.csharp_data
-        docs = bson.decode_all(data, CodecOptions(SON, False, CSHARP_LEGACY))
+        docs = bson.decode_all(data, CodecOptions(dict, False, CSHARP_LEGACY))
 
         client_context.client.pymongo_test.drop_collection('csharp_uuid')
         db = client_context.client.pymongo_test

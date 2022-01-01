@@ -25,7 +25,6 @@ sys.path[0:0] = [""]
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
 from bson.int64 import Int64
 from bson.raw_bson import RawBSONDocument
-from bson.son import SON
 
 
 from pymongo.errors import (ConnectionFailure,
@@ -202,13 +201,13 @@ class TestRetryableWrites(IgnoreDeprecationsTest):
 
     def setUp(self):
         if client_context.is_rs and client_context.test_commands_enabled:
-            self.client.admin.command(SON([
+            self.client.admin.command(dict([
                 ('configureFailPoint', 'onPrimaryTransactionalWrite'),
                 ('mode', 'alwaysOn')]))
 
     def tearDown(self):
         if client_context.is_rs and client_context.test_commands_enabled:
-            self.client.admin.command(SON([
+            self.client.admin.command(dict([
                 ('configureFailPoint', 'onPrimaryTransactionalWrite'),
                 ('mode', 'off')]))
 
@@ -388,7 +387,7 @@ class TestRetryableWrites(IgnoreDeprecationsTest):
         large = 's' * 1024 * 1024 * 15
         coll = self.db.retryable_write_test
         coll.delete_many({})
-        self.client.admin.command(SON([
+        self.client.admin.command(dict([
             ('configureFailPoint', 'onPrimaryTransactionalWrite'),
             ('mode', {'skip': 3}),  # The number of _documents_ to skip.
             ('data', {'failBeforeCommitExceptionCode': 1})]))

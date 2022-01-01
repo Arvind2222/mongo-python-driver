@@ -141,7 +141,6 @@ from collections.abc import Mapping as _Mapping
 
 from bson.binary import Binary
 from bson.int64 import Int64
-from bson.son import SON
 from bson.timestamp import Timestamp
 
 from pymongo.cursor import _SocketManager
@@ -774,7 +773,7 @@ class ClientSession(object):
         self._transaction.attempt += 1
         opts = self._transaction.opts
         wc = opts.write_concern
-        cmd = SON([(command_name, 1)])
+        cmd = dict([(command_name, 1)])
         if command_name == "commitTransaction":
             if opts.max_commit_time_ms:
                 cmd['maxTimeMS'] = opts.max_commit_time_ms

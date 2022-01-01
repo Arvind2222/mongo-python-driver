@@ -14,7 +14,6 @@
 
 """Test the read_concern module."""
 
-from bson.son import SON
 from pymongo.errors import OperationFailure
 from pymongo.read_concern import ReadConcern
 
@@ -84,9 +83,9 @@ class TestReadConcern(IntegrationTest):
         coll = self.db.get_collection('coll', read_concern=ReadConcern('local'))
         tuple(coll.find({'field': 'value'}))
         self.assertEqualCommand(
-            SON([('find', 'coll'),
-                 ('filter', {'field': 'value'}),
-                 ('readConcern', {'level': 'local'})]),
+            dict([('find', 'coll'),
+                  ('filter', {'field': 'value'}),
+                  ('readConcern', {'level': 'local'})]),
             self.listener.results['started'][0].command)
 
     def test_command_cursor(self):

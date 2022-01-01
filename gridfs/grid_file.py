@@ -19,7 +19,6 @@ import math
 import os
 
 from bson.int64 import Int64
-from bson.son import SON
 from bson.binary import Binary
 from bson.objectid import ObjectId
 from pymongo import ASCENDING
@@ -51,8 +50,8 @@ NEWLN = b"\n"
 # Slightly under a power of 2, to work well with server's record allocations.
 DEFAULT_CHUNK_SIZE = 255 * 1024
 
-_C_INDEX = SON([("files_id", ASCENDING), ("n", ASCENDING)])
-_F_INDEX = SON([("filename", ASCENDING), ("uploadDate", ASCENDING)])
+_C_INDEX = dict([("files_id", ASCENDING), ("n", ASCENDING)])
+_F_INDEX = dict([("filename", ASCENDING), ("uploadDate", ASCENDING)])
 
 
 def _grid_in_property(field_name, docstring, read_only=False,

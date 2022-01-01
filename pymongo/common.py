@@ -21,7 +21,6 @@ import warnings
 from collections import abc, OrderedDict
 from urllib.parse import unquote_plus
 
-from bson import SON
 from bson.binary import UuidRepresentation
 from bson.codec_options import CodecOptions, TypeRegistry
 from bson.raw_bson import RawBSONDocument
@@ -37,7 +36,7 @@ from pymongo.read_concern import ReadConcern
 from pymongo.read_preferences import _MONGOS_MODES, _ServerMode
 from pymongo.write_concern import DEFAULT_WRITE_CONCERN, WriteConcern
 
-ORDERED_TYPES = (SON, OrderedDict)
+ORDERED_TYPES = (dict, OrderedDict)
 
 # Defaults until we connect to a server and get updated limits.
 MAX_BSON_SIZE = 16 * (1024 ** 2)

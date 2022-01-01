@@ -33,7 +33,6 @@ from bson.binary import (Binary,
 from bson.codec_options import CodecOptions
 from bson.errors import BSONError
 from bson.json_util import JSONOptions
-from bson.son import SON
 
 from pymongo import encryption
 from pymongo.cursor import CursorType
@@ -162,7 +161,7 @@ OPTS = CodecOptions(uuid_representation=STANDARD)
 
 # Use SON to preserve the order of fields while parsing json. Use tz_aware
 # =False to match how CodecOptions decodes dates.
-JSON_OPTS = JSONOptions(document_class=SON, uuid_representation=STANDARD,
+JSON_OPTS = JSONOptions(document_class=dict, uuid_representation=STANDARD,
                         tz_aware=False)
 
 
@@ -895,7 +894,7 @@ class TestCorpus(EncryptionIntegrationTest):
         self.addCleanup(client_encryption.close)
 
         corpus = self.fix_up_curpus(json_data('corpus', 'corpus.json'))
-        corpus_copied = SON()
+        corpus_copied = dict()
         for key, value in corpus.items():
             corpus_copied[key] = copy.deepcopy(value)
             if key in ('_id', 'altname_aws', 'altname_azure', 'altname_gcp',

@@ -26,7 +26,6 @@ from io import BytesIO
 from bson.binary import Binary
 from bson.int64 import Int64
 from bson.objectid import ObjectId
-from bson.son import SON
 import gridfs
 from gridfs.errors import NoFile, CorruptGridFile
 from pymongo.errors import (ConfigurationError,
@@ -166,7 +165,7 @@ class TestGridfs(IntegrationTest):
             # from the mongo shell).
             shell_index = [('filename', i), ('uploadDate', j)]
             self.db.command('createIndexes', files.name,
-                            indexes=[{'key': SON(shell_index),
+                            indexes=[{'key': dict(shell_index),
                                       'name': 'filename_1.0_uploadDate_1.0'}])
 
             # No error.

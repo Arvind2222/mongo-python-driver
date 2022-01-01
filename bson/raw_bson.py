@@ -56,7 +56,6 @@ from collections.abc import Mapping as _Mapping
 from bson import _raw_to_dict, _get_object_size
 from bson.codec_options import (
     DEFAULT_CODEC_OPTIONS as DEFAULT, _RAW_BSON_DOCUMENT_MARKER)
-from bson.son import SON
 
 
 class RawBSONDocument(_Mapping):
@@ -167,7 +166,7 @@ def _inflate_bson(bson_bytes, codec_options):
     """
     # Use SON to preserve ordering of elements.
     return _raw_to_dict(
-        bson_bytes, 4, len(bson_bytes)-1, codec_options, SON())
+        bson_bytes, 4, len(bson_bytes)-1, codec_options, dict())
 
 
 DEFAULT_RAW_BSON_OPTIONS = DEFAULT.with_options(document_class=RawBSONDocument)

@@ -16,7 +16,6 @@
 
 from bson.codec_options import DEFAULT_CODEC_OPTIONS
 from bson.dbref import DBRef
-from bson.son import SON
 from pymongo import common
 from pymongo.aggregation import _DatabaseAggregationCommand
 from pymongo.change_stream import DatabaseChangeStream
@@ -479,7 +478,7 @@ class Database(common.BaseObject):
                  parse_write_concern_error=False, session=None, **kwargs):
         """Internal command helper."""
         if isinstance(command, str):
-            command = SON([(command, value)])
+            command = dict([(command, value)])
 
         command.update(kwargs)
         with self.__client._tmp_session(session) as s:
@@ -612,8 +611,8 @@ class Database(common.BaseObject):
 
         coll = self.get_collection(
             "$cmd", read_preference=read_preference)
-        cmd = SON([("listCollections", 1),
-                   ("cursor", {})])
+        cmd = dict([("listCollections", 1),
+                    ("cursor", {})])
         cmd.update(kwargs)
         with self.__client._tmp_session(
                 session, close=False) as tmp_session:
@@ -775,9 +774,9 @@ class Database(common.BaseObject):
             raise TypeError("name_or_collection must be an instance of str or "
                             "Collection")
 
-        cmd = SON([("validate", name),
-                   ("scandata", scandata),
-                   ("full", full)])
+        cmd = dict([("validate", name),
+                    ("scandata", scandata),
+                    ("full", full)])
         if background is not None:
             cmd["background"] = background
 

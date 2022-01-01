@@ -48,7 +48,6 @@ from bson.codec_options import CodecOptions
 from bson.int64 import Int64
 from bson.objectid import ObjectId
 from bson.dbref import DBRef
-from bson.son import SON
 from bson.timestamp import Timestamp
 from bson.errors import (InvalidBSON,
                          InvalidDocument)
@@ -126,7 +125,7 @@ class TestBSON(unittest.TestCase):
 
         # Work around http://bugs.jython.org/issue1728
         if sys.platform.startswith('java'):
-            doc_class = SON
+            doc_class = dict
 
         def helper(doc):
             self.assertEqual(doc, (decoder(encoder(doc_class(doc)))))
@@ -148,9 +147,9 @@ class TestBSON(unittest.TestCase):
         helper({"a binary": Binary(b"test", 128)})
         helper({"a binary": Binary(b"test", 254)})
         helper({"another binary": Binary(b"test", 2)})
-        helper(SON([('test dst', datetime.datetime(1993, 4, 4, 2))]))
-        helper(SON([('test negative dst',
-                     datetime.datetime(1, 1, 1, 1, 1, 1))]))
+        helper(dict([('test dst', datetime.datetime(1993, 4, 4, 2))]))
+        helper(dict([('test negative dst',
+                      datetime.datetime(1, 1, 1, 1, 1, 1))]))
         helper({"big float": float(10000000000)})
         helper({"ref": DBRef("coll", 5)})
         helper({"ref": DBRef("coll", 5, foo="bar", bar=4)})
@@ -698,16 +697,16 @@ class TestBSON(unittest.TestCase):
     def test_move_id(self):
         self.assertEqual(b"\x19\x00\x00\x00\x02_id\x00\x02\x00\x00\x00a\x00"
                          b"\x02a\x00\x02\x00\x00\x00a\x00\x00",
-                         encode(SON([("a", "a"), ("_id", "a")])))
+                         encode(dict([("a", "a"), ("_id", "a")])))
 
         self.assertEqual(b"\x2c\x00\x00\x00"
                          b"\x02_id\x00\x02\x00\x00\x00b\x00"
                          b"\x03b\x00"
                          b"\x19\x00\x00\x00\x02a\x00\x02\x00\x00\x00a\x00"
                          b"\x02_id\x00\x02\x00\x00\x00a\x00\x00\x00",
-                         encode(SON([("b",
-                                           SON([("a", "a"), ("_id", "a")])),
-                                          ("_id", "b")])))
+                         encode(dict([("b",
+                                       dict([("a", "a"), ("_id", "a")])),
+                                      ("_id", "b")])))
 
     def test_dates(self):
         doc = {"early": datetime.datetime(1686, 5, 5),
@@ -723,16 +722,16 @@ class TestBSON(unittest.TestCase):
 
     def test_custom_class(self):
         self.assertIsInstance(decode(encode({})), dict)
-        self.assertNotIsInstance(decode(encode({})), SON)
+        self.assertNotIsInstance(decode(encode({})), dict)
         self.assertIsInstance(
-            decode(encode({}), CodecOptions(document_class=SON)), SON)
+            decode(encode({}), CodecOptions(document_class=dict)), dict)
 
         self.assertEqual(
-            1, decode(encode({"x": 1}), CodecOptions(document_class=SON))["x"])
+            1, decode(encode({"x": 1}), CodecOptions(document_class=dict))["x"])
 
         x = encode({"x": [{"y": 1}]})
         self.assertIsInstance(
-            decode(x, CodecOptions(document_class=SON))["x"][0], SON)
+            decode(x, CodecOptions(document_class=dict))["x"][0], dict)
 
     def test_subclasses(self):
         # make sure we can serialize subclasses of native Python types.
@@ -953,7 +952,7 @@ class TestBSON(unittest.TestCase):
 class TestCodecOptions(unittest.TestCase):
     def test_document_class(self):
         self.assertRaises(TypeError, CodecOptions, document_class=object)
-        self.assertIs(SON, CodecOptions(document_class=SON).document_class)
+        self.assertIs(dict, CodecOptions(document_class=dict).document_class)
 
     def test_tz_aware(self):
         self.assertRaises(TypeError, CodecOptions, tz_aware=1)

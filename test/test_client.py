@@ -32,7 +32,6 @@ sys.path[0:0] = [""]
 
 from bson import encode
 from bson.codec_options import CodecOptions, TypeEncoder, TypeRegistry
-from bson.son import SON
 from bson.tz_util import utc
 import pymongo
 from pymongo import event_loggers, message, monitoring
@@ -341,7 +340,7 @@ class ClientUnitTest(unittest.TestCase):
                 return int(value)
 
         # Ensure codec options are passed in correctly
-        document_class = SON
+        document_class = dict
         type_registry = TypeRegistry([MyFloatAsIntEncoder()])
         tz_aware = True
         uuid_representation_label = 'javaLegacy'
@@ -699,7 +698,7 @@ class TestClient(IntegrationTest):
         client = MongoClient(
             'mongodb://localhost:27017,localhost:27018/?replicaSet=replset'
             '&connectTimeoutMS=12345&w=1&wtimeoutms=100',
-            connect=False, document_class=SON)
+            connect=False, document_class=dict)
 
         the_repr = repr(client)
         self.assertIn('MongoClient(host=', the_repr)
@@ -750,7 +749,7 @@ class TestClient(IntegrationTest):
         self.assertEqual(helper_docs, cmd_docs)
         for doc in helper_docs:
             self.assertIs(type(doc), dict)
-        client = rs_or_single_client(document_class=SON)
+        client = rs_or_single_client(document_class=dict)
         for doc in client.list_databases():
             self.assertIs(type(doc), dict)
 
@@ -996,13 +995,13 @@ class TestClient(IntegrationTest):
 
         self.assertEqual(dict, c.codec_options.document_class)
         self.assertTrue(isinstance(db.test.find_one(), dict))
-        self.assertFalse(isinstance(db.test.find_one(), SON))
+        self.assertFalse(isinstance(db.test.find_one(), dict))
 
-        c = rs_or_single_client(document_class=SON)
+        c = rs_or_single_client(document_class=dict)
         db = c.pymongo_test
 
-        self.assertEqual(SON, c.codec_options.document_class)
-        self.assertTrue(isinstance(db.test.find_one(), SON))
+        self.assertEqual(dict, c.codec_options.document_class)
+        self.assertTrue(isinstance(db.test.find_one(), dict))
 
     def test_timeouts(self):
         client = rs_or_single_client(
@@ -1688,7 +1687,7 @@ class TestExhaustCursor(IntegrationTest):
         # This will cause OperationFailure in all mongo versions since
         # the value for $orderby must be a document.
         cursor = collection.find(
-            SON([('$query', {}), ('$orderby', True)]),
+            dict([('$query', {}), ('$orderby', True)]),
             cursor_type=CursorType.EXHAUST)
 
         self.assertRaises(OperationFailure, cursor.next)

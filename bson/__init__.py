@@ -84,7 +84,7 @@ from bson.max_key import MaxKey
 from bson.min_key import MinKey
 from bson.objectid import ObjectId
 from bson.regex import Regex
-from bson.son import SON, RE_TYPE
+from bson.son import RE_TYPE
 from bson.timestamp import Timestamp
 from bson.tz_util import utc
 
@@ -702,7 +702,7 @@ _ENCODERS = {
     ObjectId: _encode_objectid,
     Regex: _encode_regex,
     RE_TYPE: _encode_regex,
-    SON: _encode_mapping,
+    dict: _encode_mapping,
     Timestamp: _encode_timestamp,
     Decimal128: _encode_decimal128,
     # Special case. This will never be looked up directly.

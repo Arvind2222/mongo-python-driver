@@ -45,7 +45,6 @@ from unittest import SkipTest
 import pymongo
 import pymongo.errors
 
-from bson.son import SON
 from pymongo import common, message
 from pymongo.common import partition_node
 from pymongo.hello import HelloCompat
@@ -132,7 +131,7 @@ def is_server_resolvable():
 
 
 def _create_user(authdb, user, pwd=None, roles=None, **kwargs):
-    cmd = SON([('createUser', user)])
+    cmd = dict([('createUser', user)])
     # X509 doesn't use a password
     if pwd:
         cmd['pwd'] = pwd
@@ -920,7 +919,7 @@ class PyMongoTestCase(unittest.TestCase):
 
     @contextmanager
     def fail_point(self, command_args):
-        cmd_on = SON([('configureFailPoint', 'failCommand')])
+        cmd_on = dict([('configureFailPoint', 'failCommand')])
         cmd_on.update(command_args)
         client_context.client.admin.command(cmd_on)
         try:

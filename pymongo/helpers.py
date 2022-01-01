@@ -19,7 +19,6 @@ import traceback
 
 from collections import abc
 
-from bson.son import SON
 from pymongo import ASCENDING
 from pymongo.errors import (CursorNotFound,
                             DuplicateKeyError,
@@ -95,7 +94,7 @@ def _index_document(index_list):
     if not len(index_list):
         raise ValueError("key_or_list must not be the empty list")
 
-    index = SON()
+    index = dict()
     for (key, value) in index_list:
         if not isinstance(key, str):
             raise TypeError(

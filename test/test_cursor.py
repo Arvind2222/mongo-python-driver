@@ -26,7 +26,6 @@ sys.path[0:0] = [""]
 
 from bson import decode_all
 from bson.code import Code
-from bson.son import SON
 from pymongo import (ASCENDING,
                      DESCENDING)
 from pymongo.collation import Collation
@@ -921,7 +920,7 @@ class TestCursor(IntegrationTest):
         # Ensure hints are cloned as the correct type
         cursor = self.db.test.find().hint([('z', 1), ("a", 1)])
         cursor2 = copy.deepcopy(cursor)
-        self.assertTrue(isinstance(cursor2._Cursor__hint, SON))
+        self.assertTrue(isinstance(cursor2._Cursor__hint, dict))
         self.assertEqual(cursor._Cursor__hint, cursor2._Cursor__hint)
 
     def test_clone_empty(self):

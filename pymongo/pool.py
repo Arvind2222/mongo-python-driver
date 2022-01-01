@@ -26,7 +26,6 @@ import time
 import weakref
 
 from bson import DEFAULT_CODEC_OPTIONS
-from bson.son import SON
 from pymongo import auth, helpers, __version__
 from pymongo.client_session import _validate_session_write_concern
 from pymongo.common import (MAX_BSON_SIZE,
@@ -145,8 +144,8 @@ else:
         _set_tcp_option(sock, 'TCP_KEEPINTVL', _MAX_TCP_KEEPINTVL)
         _set_tcp_option(sock, 'TCP_KEEPCNT', _MAX_TCP_KEEPCNT)
 
-_METADATA = SON([
-    ('driver', SON([('name', 'PyMongo'), ('version', __version__)])),
+_METADATA = dict([
+    ('driver', dict([('name', 'PyMongo'), ('version', __version__)])),
 ])
 
 if sys.platform.startswith('linux'):
@@ -155,7 +154,7 @@ if sys.platform.startswith('linux'):
     # raises DeprecationWarning
     # DeprecationWarning: dist() and linux_distribution() functions are deprecated in Python 3.5
     _name = platform.system()
-    _METADATA['os'] = SON([
+    _METADATA['os'] = dict([
         ('type', _name),
         ('name', _name),
         ('architecture', platform.machine()),
@@ -163,7 +162,7 @@ if sys.platform.startswith('linux'):
         ('version', platform.release())
     ])
 elif sys.platform == 'darwin':
-    _METADATA['os'] = SON([
+    _METADATA['os'] = dict([
         ('type', platform.system()),
         ('name', platform.system()),
         ('architecture', platform.machine()),
@@ -172,7 +171,7 @@ elif sys.platform == 'darwin':
         ('version', platform.mac_ver()[0])
     ])
 elif sys.platform == 'win32':
-    _METADATA['os'] = SON([
+    _METADATA['os'] = dict([
         ('type', platform.system()),
         # "Windows XP", "Windows 7", "Windows 10", etc.
         ('name', ' '.join((platform.system(), platform.release()))),
@@ -182,7 +181,7 @@ elif sys.platform == 'win32':
     ])
 elif sys.platform.startswith('java'):
     _name, _ver, _arch = platform.java_ver()[-1]
-    _METADATA['os'] = SON([
+    _METADATA['os'] = dict([
         # Linux, Windows 7, Mac OS X, etc.
         ('type', _name),
         ('name', _name),
@@ -195,7 +194,7 @@ else:
     # Get potential alias (e.g. SunOS 5.11 becomes Solaris 2.11)
     _aliased = platform.system_alias(
         platform.system(), platform.release(), platform.version())
-    _METADATA['os'] = SON([
+    _METADATA['os'] = dict([
         ('type', platform.system()),
         ('name', ' '.join([part for part in _aliased[:2] if part])),
         ('architecture', platform.machine()),
@@ -563,9 +562,9 @@ class SocketInfo(object):
 
     def hello_cmd(self):
         if self.opts.server_api or self.hello_ok:
-            return SON([(HelloCompat.CMD, 1)])
+            return dict([(HelloCompat.CMD, 1)])
         else:
-            return SON([(HelloCompat.LEGACY_CMD, 1), ('helloOk', True)])
+            return dict([(HelloCompat.LEGACY_CMD, 1), ('helloOk', True)])
 
     def hello(self, all_credentials=None):
         return self._hello(None, None, None, all_credentials)
@@ -696,7 +695,7 @@ class SocketInfo(object):
 
         # Ensure command name remains in first place.
         if not isinstance(spec, ORDERED_TYPES):
-            spec = SON(spec)
+            spec = dict(spec)
 
         if not (write_concern is None or write_concern.acknowledged or
                 collation is None):

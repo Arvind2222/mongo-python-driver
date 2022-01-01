@@ -35,7 +35,6 @@ from bson import (CodecOptions,
 from bson.int64 import Int64
 from bson.raw_bson import (_inflate_bson, DEFAULT_RAW_BSON_OPTIONS,
                            RawBSONDocument)
-from bson.son import SON
 
 try:
     from pymongo import _cmessage
@@ -105,7 +104,7 @@ def _maybe_add_read_preference(spec, read_preference):
             mode != ReadPreference.SECONDARY_PREFERRED.mode or
             len(document) > 1):
         if "$query" not in spec:
-            spec = SON([("$query", spec)])
+            spec = dict([("$query", spec)])
         spec["$readPreference"] = document
     return spec
 
@@ -155,7 +154,7 @@ def _convert_write_result(operation, command, result):
     return res
 
 
-_OPTIONS = SON([
+_OPTIONS = dict([
     ('tailable', 2),
     ('oplogReplay', 8),
     ('noCursorTimeout', 16),
@@ -163,7 +162,7 @@ _OPTIONS = SON([
     ('allowPartialResults', 128)])
 
 
-_MODIFIERS = SON([
+_MODIFIERS = dict([
     ('$query', 'filter'),
     ('$orderby', 'sort'),
     ('$hint', 'hint'),
@@ -182,7 +181,7 @@ def _gen_find_command(coll, spec, projection, skip, limit, batch_size, options,
                       read_concern, collation=None, session=None,
                       allow_disk_use=None):
     """Generate a find command document."""
-    cmd = SON([('find', coll)])
+    cmd = dict([('find', coll)])
     if '$query' in spec:
         cmd.update([(_MODIFIERS[key], val) if key in _MODIFIERS else (key, val)
                     for key, val in spec.items()])
@@ -219,8 +218,8 @@ def _gen_find_command(coll, spec, projection, skip, limit, batch_size, options,
 
 def _gen_get_more_command(cursor_id, coll, batch_size, max_await_time_ms):
     """Generate a getMore command document."""
-    cmd = SON([('getMore', cursor_id),
-               ('collection', coll)])
+    cmd = dict([('getMore', cursor_id),
+                ('collection', coll)])
     if batch_size:
         cmd['batchSize'] = batch_size
     if max_await_time_ms is not None:
@@ -298,7 +297,7 @@ class _Query(object):
             self.collation, self.session, self.allow_disk_use)
         if explain:
             self.name = 'explain'
-            cmd = SON([('explain', cmd)])
+            cmd = dict([('explain', cmd)])
         session = self.session
         sock_info.add_server_api(cmd)
         if session:

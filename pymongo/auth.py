@@ -25,7 +25,6 @@ from collections import namedtuple
 from urllib.parse import quote
 
 from bson.binary import Binary
-from bson.son import SON
 from pymongo.auth_aws import _authenticate_aws
 from pymongo.errors import ConfigurationError, OperationFailure
 from pymongo.saslprep import saslprep
@@ -170,11 +169,11 @@ def _authenticate_scram_start(credentials, mechanism):
     nonce = standard_b64encode(os.urandom(32))
     first_bare = b"n=" + user + b",r=" + nonce
 
-    cmd = SON([('saslStart', 1),
-               ('mechanism', mechanism),
-               ('payload', Binary(b"n,," + first_bare)),
-               ('autoAuthorize', 1),
-               ('options', {'skipEmptyExchange': True})])
+    cmd = dict([('saslStart', 1),
+                ('mechanism', mechanism),
+                ('payload', Binary(b"n,," + first_bare)),
+                ('autoAuthorize', 1),
+                ('options', {'skipEmptyExchange': True})])
     return nonce, first_bare, cmd
 
 
@@ -237,9 +236,9 @@ def _authenticate_scram(credentials, sock_info, mechanism):
     server_sig = standard_b64encode(
         _hmac(server_key, auth_msg, digestmod).digest())
 
-    cmd = SON([('saslContinue', 1),
-               ('conversationId', res['conversationId']),
-               ('payload', Binary(client_final))])
+    cmd = dict([('saslContinue', 1),
+                ('conversationId', res['conversationId']),
+                ('payload', Binary(client_final))])
     res = sock_info.command(source, cmd)
 
     parsed = _parse_scram_response(res['payload'])
@@ -249,9 +248,9 @@ def _authenticate_scram(credentials, sock_info, mechanism):
     # A third empty challenge may be required if the server does not support
     # skipEmptyExchange: SERVER-44857.
     if not res['done']:
-        cmd = SON([('saslContinue', 1),
-                   ('conversationId', res['conversationId']),
-                   ('payload', Binary(b''))])
+        cmd = dict([('saslContinue', 1),
+                    ('conversationId', res['conversationId']),
+                    ('payload', Binary(b''))])
         res = sock_info.command(source, cmd)
         if not res['done']:
             raise OperationFailure('SASL conversation failed to complete.')
@@ -354,10 +353,10 @@ def _authenticate_gssapi(credentials, sock_info):
             # Since mongo accepts base64 strings as the payload we don't
             # have to use bson.binary.Binary.
             payload = kerberos.authGSSClientResponse(ctx)
-            cmd = SON([('saslStart', 1),
-                       ('mechanism', 'GSSAPI'),
-                       ('payload', payload),
-                       ('autoAuthorize', 1)])
+            cmd = dict([('saslStart', 1),
+                        ('mechanism', 'GSSAPI'),
+                        ('payload', payload),
+                        ('autoAuthorize', 1)])
             response = sock_info.command('$external', cmd)
 
             # Limit how many times we loop to catch protocol / library issues
@@ -370,9 +369,9 @@ def _authenticate_gssapi(credentials, sock_info):
 
                 payload = kerberos.authGSSClientResponse(ctx) or ''
 
-                cmd = SON([('saslContinue', 1),
-                           ('conversationId', response['conversationId']),
-                           ('payload', payload)])
+                cmd = dict([('saslContinue', 1),
+                            ('conversationId', response['conversationId']),
+                            ('payload', payload)])
                 response = sock_info.command('$external', cmd)
 
                 if result == kerberos.AUTH_GSS_COMPLETE:
@@ -395,9 +394,9 @@ def _authenticate_gssapi(credentials, sock_info):
                                        'failure during GSS_Wrap step.')
 
             payload = kerberos.authGSSClientResponse(ctx)
-            cmd = SON([('saslContinue', 1),
-                       ('conversationId', response['conversationId']),
-                       ('payload', payload)])
+            cmd = dict([('saslContinue', 1),
+                        ('conversationId', response['conversationId']),
+                        ('payload', payload)])
             sock_info.command('$external', cmd)
 
         finally:
@@ -414,10 +413,10 @@ def _authenticate_plain(credentials, sock_info):
     username = credentials.username
     password = credentials.password
     payload = ('\x00%s\x00%s' % (username, password)).encode('utf-8')
-    cmd = SON([('saslStart', 1),
-               ('mechanism', 'PLAIN'),
-               ('payload', Binary(payload)),
-               ('autoAuthorize', 1)])
+    cmd = dict([('saslStart', 1),
+                ('mechanism', 'PLAIN'),
+                ('payload', Binary(payload)),
+                ('autoAuthorize', 1)])
     sock_info.command(source, cmd)
 
 
@@ -445,10 +444,10 @@ def _authenticate_mongo_cr(credentials, sock_info):
     key = _auth_key(nonce, username, password)
 
     # Actually authenticate
-    query = SON([('authenticate', 1),
-                 ('user', username),
-                 ('nonce', nonce),
-                 ('key', key)])
+    query = dict([('authenticate', 1),
+                  ('user', username),
+                  ('nonce', nonce),
+                  ('key', key)])
     sock_info.command(source, query)
 
 
@@ -525,8 +524,8 @@ class _ScramContext(_AuthContext):
 
 class _X509Context(_AuthContext):
     def speculate_command(self):
-        cmd = SON([('authenticate', 1),
-                   ('mechanism', 'MONGODB-X509')])
+        cmd = dict([('authenticate', 1),
+                    ('mechanism', 'MONGODB-X509')])
         if self.credentials.username is not None:
             cmd['user'] = self.credentials.username
         return cmd

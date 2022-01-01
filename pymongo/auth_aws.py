@@ -28,7 +28,6 @@ except ImportError:
 
 import bson
 from bson.binary import Binary
-from bson.son import SON
 from pymongo.errors import ConfigurationError, OperationFailure
 
 
@@ -64,7 +63,7 @@ def _authenticate_aws(credentials, sock_info):
             credentials.username, credentials.password,
             credentials.mechanism_properties.aws_session_token))
         client_payload = ctx.step(None)
-        client_first = SON([('saslStart', 1),
+        client_first = dict([('saslStart', 1),
                             ('mechanism', 'MONGODB-AWS'),
                             ('payload', client_payload)])
         server_first = sock_info.command('$external', client_first)
@@ -72,7 +71,7 @@ def _authenticate_aws(credentials, sock_info):
         # Limit how many times we loop to catch protocol / library issues
         for _ in range(10):
             client_payload = ctx.step(res['payload'])
-            cmd = SON([('saslContinue', 1),
+            cmd = dict([('saslContinue', 1),
                        ('conversationId', server_first['conversationId']),
                        ('payload', client_payload)])
             res = sock_info.command('$external', cmd)

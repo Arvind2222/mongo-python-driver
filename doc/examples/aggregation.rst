@@ -50,7 +50,19 @@ eg "$sort":
 
 .. doctest::
 
-  >>> from bson.son import SON
+  >>> from bson.son import dict
+    >>> pipeline = [
+    ...     {"$unwind": "$tags"},
+    ...     {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+    ...     {"$sort": SON([("count", -1), ("_id", -1)])}
+    ... ]
+    >>> import pprint
+    >>> pprint.pprint(list(db.things.aggregate(pipeline)))
+    [{'_id': 'cat', 'count': 3},
+     {'_id': 'dog', 'count': 2},
+     {'_id': 'mouse', 'count': 1}]
+
+  To run an explain plan for this aggregation use the
   >>> pipeline = [
   ...     {"$unwind": "$tags"},
   ...     {"$group": {"_id": "$tags", "count": {"$sum": 1}}},

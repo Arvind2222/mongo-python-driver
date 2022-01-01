@@ -21,7 +21,6 @@ import time
 
 sys.path[0:0] = [""]
 
-from bson.son import SON
 from bson.objectid import ObjectId
 
 from pymongo.errors import (ConnectionFailure,
@@ -202,7 +201,7 @@ class TestCMAP(IntegrationTest):
         self.assertIn(message, str(actual))
 
     def _set_fail_point(self, client, command_args):
-        cmd = SON([('configureFailPoint', 'failCommand')])
+        cmd = dict([('configureFailPoint', 'failCommand')])
         cmd.update(command_args)
         client.admin.command(cmd)
 

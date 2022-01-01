@@ -33,7 +33,6 @@ from bson.decimal128 import Decimal128
 from bson.dbref import DBRef
 from bson.errors import InvalidBSON, InvalidDocument, InvalidId
 from bson.json_util import JSONMode
-from bson.son import SON
 
 from test import unittest
 
@@ -73,8 +72,8 @@ _DEPRECATED_BSON_TYPES = {
 
 
 # Need to set tz_aware=True in order to use "strict" dates in extended JSON.
-codec_options = CodecOptions(tz_aware=True, document_class=SON)
-codec_options_no_tzaware = CodecOptions(document_class=SON)
+codec_options = CodecOptions(tz_aware=True, document_class=dict)
+codec_options_no_tzaware = CodecOptions(document_class=dict)
 # We normally encode UUID as binary subtype 0x03,
 # but we'll need to encode to subtype 0x04 for one of the tests.
 codec_options_uuid_04 = codec_options._replace(uuid_representation=STANDARD)
@@ -98,8 +97,8 @@ decode_bson = functools.partial(decode, codec_options=codec_options_no_tzaware)
 decode_extjson = functools.partial(
     json_util.loads,
     json_options=json_util.JSONOptions(json_mode=JSONMode.CANONICAL,
-                                       document_class=SON))
-loads = functools.partial(json.loads, object_pairs_hook=SON)
+                                       document_class=dict))
+loads = functools.partial(json.loads, object_pairs_hook=dict)
 
 
 class TestBSONCorpus(unittest.TestCase):

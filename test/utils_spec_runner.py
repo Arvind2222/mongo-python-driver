@@ -22,7 +22,6 @@ from collections import abc
 from bson import decode, encode
 from bson.binary import Binary
 from bson.int64 import Int64
-from bson.son import SON
 
 from gridfs import GridFSBucket
 
@@ -111,7 +110,7 @@ class SpecRunner(IntegrationTest):
         self.maxDiff = None
 
     def _set_fail_point(self, client, command_args):
-        cmd = SON([('configureFailPoint', 'failCommand')])
+        cmd = dict([('configureFailPoint', 'failCommand')])
         cmd.update(command_args)
         client.admin.command(cmd)
 

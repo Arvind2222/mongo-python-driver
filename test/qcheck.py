@@ -22,7 +22,6 @@ sys.path[0:0] = [""]
 
 from bson.dbref import DBRef
 from bson.objectid import ObjectId
-from bson.son import SON
 
 gen_target = 100
 reduction_attempts = 10
@@ -166,12 +165,12 @@ def gen_mongo_list(depth, ref):
 def gen_mongo_dict(depth, ref=True):
     return my_map(gen_dict(gen_unicode(gen_range(0, 20)),
                         gen_mongo_value(depth - 1, ref),
-                        gen_range(0, 10)), SON)
+                        gen_range(0, 10)), dict)
 
 
 def simplify(case):  # TODO this is a hack
-    if isinstance(case, SON) and "$ref" not in case:
-        simplified = SON(case)  # make a copy!
+    if isinstance(case, dict) and "$ref" not in case:
+        simplified = dict(case)  # make a copy!
         if random.choice([True, False]):
             # delete
             simplified_keys = list(simplified)

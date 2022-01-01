@@ -23,7 +23,6 @@ from bson.binary import Binary, JAVA_LEGACY, UuidRepresentation
 from bson.codec_options import CodecOptions
 from bson.errors import InvalidBSON
 from bson.raw_bson import RawBSONDocument, DEFAULT_RAW_BSON_OPTIONS
-from bson.son import SON
 from test import client_context, unittest
 from test.utils import rs_or_single_client
 from test.test_client import IntegrationTest
@@ -188,7 +187,7 @@ class TestRawBSONDocument(IntegrationTest):
 
     def test_preserve_key_ordering(self):
         keyvaluepairs = [('a', 1), ('b', 2), ('c', 3),]
-        rawdoc = RawBSONDocument(encode(SON(keyvaluepairs)))
+        rawdoc = RawBSONDocument(encode(dict(keyvaluepairs)))
 
         for rkey, elt in zip(rawdoc, keyvaluepairs):
             self.assertEqual(rkey, elt[0])

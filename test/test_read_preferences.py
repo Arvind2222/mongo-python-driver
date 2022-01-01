@@ -22,7 +22,6 @@ import sys
 
 sys.path[0:0] = [""]
 
-from bson.son import SON
 from pymongo.errors import ConfigurationError, OperationFailure
 from pymongo.message import _maybe_add_read_preference
 from pymongo.mongo_client import MongoClient
@@ -552,28 +551,28 @@ class TestMongosAndReadPreference(IntegrationTest):
             else:
                 self.assertEqual(
                     out,
-                    SON([("$query", {}), ("$readPreference", pref.document)]))
+                    dict([("$query", {}), ("$readPreference", pref.document)]))
 
             hedge = {'enabled': True}
             pref = cls(hedge=hedge)
             self.assertEqual(pref.document, {'mode': mode, 'hedge': hedge})
             out = _maybe_add_read_preference({}, pref)
             self.assertEqual(
-                out, SON([("$query", {}), ("$readPreference", pref.document)]))
+                out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
             hedge = {'enabled': False}
             pref = cls(hedge=hedge)
             self.assertEqual(pref.document, {'mode': mode, 'hedge': hedge})
             out = _maybe_add_read_preference({}, pref)
             self.assertEqual(
-                out, SON([("$query", {}), ("$readPreference", pref.document)]))
+                out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
             hedge = {'enabled': False, 'extra': 'option'}
             pref = cls(hedge=hedge)
             self.assertEqual(pref.document, {'mode': mode, 'hedge': hedge})
             out = _maybe_add_read_preference({}, pref)
             self.assertEqual(
-                out, SON([("$query", {}), ("$readPreference", pref.document)]))
+                out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
     def test_send_hedge(self):
         cases = {
@@ -607,20 +606,20 @@ class TestMongosAndReadPreference(IntegrationTest):
         pref = PrimaryPreferred()
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
         pref = PrimaryPreferred(tag_sets=[{'dc': 'nyc'}])
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
         pref = Secondary()
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
         pref = Secondary(tag_sets=[{'dc': 'nyc'}])
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
         # SecondaryPreferred without tag_sets or max_staleness doesn't add
         # $readPreference
@@ -630,36 +629,36 @@ class TestMongosAndReadPreference(IntegrationTest):
         pref = SecondaryPreferred(tag_sets=[{'dc': 'nyc'}])
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
         pref = SecondaryPreferred(max_staleness=120)
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
         pref = Nearest()
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
         pref = Nearest(tag_sets=[{'dc': 'nyc'}])
         out = _maybe_add_read_preference({}, pref)
         self.assertEqual(
-            out, SON([("$query", {}), ("$readPreference", pref.document)]))
+            out, dict([("$query", {}), ("$readPreference", pref.document)]))
 
-        criteria = SON([("$query", {}), ("$orderby", SON([("_id", 1)]))])
+        criteria = dict([("$query", {}), ("$orderby", dict([("_id", 1)]))])
         pref = Nearest()
         out = _maybe_add_read_preference(criteria, pref)
         self.assertEqual(
             out,
-            SON([("$query", {}),
-                 ("$orderby", SON([("_id", 1)])),
-                 ("$readPreference", pref.document)]))
+            dict([("$query", {}),
+                  ("$orderby", dict([("_id", 1)])),
+                  ("$readPreference", pref.document)]))
         pref = Nearest(tag_sets=[{'dc': 'nyc'}])
         out = _maybe_add_read_preference(criteria, pref)
         self.assertEqual(
             out,
-            SON([("$query", {}),
-                 ("$orderby", SON([("_id", 1)])),
-                 ("$readPreference", pref.document)]))
+            dict([("$query", {}),
+                  ("$orderby", dict([("_id", 1)])),
+                  ("$readPreference", pref.document)]))
 
     @client_context.require_mongos
     def test_mongos(self):

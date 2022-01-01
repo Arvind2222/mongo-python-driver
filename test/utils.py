@@ -32,7 +32,6 @@ from functools import partial
 
 from bson import json_util
 from bson.objectid import ObjectId
-from bson.son import SON
 
 from pymongo import (MongoClient,
                      monitoring, operations, read_preferences)
@@ -759,7 +758,7 @@ def wait_until(predicate, success_description, timeout=10):
 
 def repl_set_step_down(client, **kwargs):
     """Run replSetStepDown, first unfreezing a secondary with replSetFreeze."""
-    cmd = SON([('replSetStepDown', 1)])
+    cmd = dict([('replSetStepDown', 1)])
     cmd.update(kwargs)
 
     # Unfreeze a secondary to ensure a speedy election.
@@ -1087,7 +1086,7 @@ def prepare_spec_arguments(spec, arguments, opname, entity_map,
         elif (opname in ('command', 'run_admin_command') and
               arg_name == 'command'):
             # Ensure the first key is the command name.
-            ordered_command = SON([(spec['command_name'], 1)])
+            ordered_command = dict([(spec['command_name'], 1)])
             ordered_command.update(arguments['command'])
             arguments['command'] = ordered_command
         elif opname == 'open_download_stream' and arg_name == 'id':

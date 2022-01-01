@@ -63,7 +63,17 @@ The $maxDistance operator requires the use of :class:`~bson.son.SON`:
 
 .. doctest::
 
-  >>> from bson.son import SON
+  >>> from bson.son import dict
+    >>> query = {"loc": SON([("$near", [3, 6]), ("$maxDistance", 100)])}
+    >>> for doc in db.places.find(query).limit(3):
+    ...   pprint.pprint(doc)
+    ...
+    {'_id': ObjectId('...'), 'loc': [2, 5]}
+    {'_id': ObjectId('...'), 'loc': [4, 4]}
+    {'_id': ObjectId('...'), 'loc': [1, 2]}
+
+  It's also possible to query for all items within a given rectangle
+  (specified by lower-left and upper-right coordinates):
   >>> query = {"loc": SON([("$near", [3, 6]), ("$maxDistance", 100)])}
   >>> for doc in db.places.find(query).limit(3):
   ...   pprint.pprint(doc)
